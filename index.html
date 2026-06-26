@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Preschool Capacity Projections</title>
+<style>
+:root{
+  --navy:#0F172A;--sidebar:#1E3A5F;--sb-txt:#CBD5E1;
+  --accent:#3B82F6;
+  --green:#059669;--green-lt:#D1FAE5;
+  --amber:#D97706;--amber-lt:#FEF3C7;
+  --red:#DC2626;--red-lt:#FEE2E2;
+  --sba-lt:#EFF6FF;--sba-bd:#BFDBFE;
+  --g50:#F8FAFC;--g100:#F1F5F9;--g200:#E2E8F0;--g300:#CBD5E1;
+  --g400:#94A3B8;--g500:#64748B;--g700:#334155;--g900:#0F172A;
+  --white:#fff;--r:8px;
+  --sh:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1);
+  --sh-lg:0 10px 15px -3px rgba(0,0,0,.15),0 4px 6px -4px rgba(0,0,0,.1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+  background:var(--g50);color:var(--g900);font-size:13px;line-height:1.5;
+  display:flex;flex-direction:column}
+
+/* HEADER */
+.hdr{background:var(--navy);color:#fff;padding:10px 20px;
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+  border-bottom:1px solid rgba(255,255,255,.08)}
+.hdr-l h1{font-size:17px;font-weight:800;letter-spacing:-.02em}
+.hdr-l p{font-size:11px;color:#94A3B8;margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:10px}
+.hdr-badge{background:rgba(59,130,246,.2);color:#93C5FD;padding:3px 10px;
+  border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.hdr-mode{background:rgba(16,185,129,.2);color:#6EE7B7;padding:3px 10px;
+  border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+
+/* LAYOUT */
+.app{display:flex;flex:1;overflow:hidden}
+
+/* SIDEBAR */
+.sb{width:292px;background:var(--sidebar);color:var(--sb-txt);
+  flex-shrink:0;display:flex;flex-direction:column;overflow:hidden}
+.sb-hdr{padding:10px 14px 8px;border-bottom:1px solid rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:space-between}
+.sb-hdr-txt{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#7DD3FC}
+.reset-btn{padding:3px 10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+  border-radius:5px;color:#94A3B8;font-size:10px;font-weight:600;cursor:pointer;transition:.2s}
+.reset-btn:hover{background:rgba(255,255,255,.15);color:#fff}
+.sb-scroll{overflow-y:auto;flex:1;padding-bottom:16px}
+.sb-scroll::-webkit-scrollbar{width:3px}
+.sb-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:3px}
+
+/* INPUT SECTIONS */
+.isec{border-bottom:1px solid rgba(255,255,255,.06)}
+.isec-toggle{display:flex;align-items:center;justify-content:space-between;
+  padding:8px 14px;cursor:pointer;user-select:none;transition:.15s}
+.isec-toggle:hover{background:rgba(255,255,255,.04)}
+.isec-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#7DD3FC}
+.isec-arrow{color:#475569;font-size:9px;transition:transform .2s}
+.isec-arrow.open{transform:rotate(90deg)}
+.isec-body{padding:4px 14px 8px;display:none}
+.isec-body.open{display:block}
+
+/* SLIDERS */
+.sg{margin-bottom:12px}
+.sg-label{display:flex;align-items:center;gap:5px;margin-bottom:5px}
+.sg-name{font-size:11px;color:#CBD5E1;font-weight:500}
+.tip-icon{display:inline-flex;align-items:center;justify-content:center;
+  width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.1);
+  color:#94A3B8;font-size:8px;font-weight:700;cursor:help;flex-shrink:0}
+.sg-row{display:flex;align-items:center;gap:7px}
+.sg-val{font-size:12px;font-weight:800;color:#fff;white-space:nowrap;
+  min-width:58px;text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:3px;
+  background:rgba(255,255,255,.15);border-radius:3px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;
+  border-radius:50%;background:#60A5FA;cursor:pointer;
+  box-shadow:0 0 0 2px rgba(96,165,250,.3);transition:.2s}
+input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 4px rgba(96,165,250,.3)}
+input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;
+  background:#60A5FA;cursor:pointer;border:none}
+.sg-range-lbl{display:flex;justify-content:space-between;font-size:9px;color:#475569;margin-top:2px}
+
+/* SIDEBAR SPECIAL BLOCKS */
+.static-info{padding:2px 0 4px}
+.static-row{display:flex;justify-content:space-between;align-items:center;
+  padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.static-key{font-size:10px;color:#94A3B8}
+.static-val{font-size:11px;font-weight:700;color:#CBD5E1}
+.infant-note{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
+  border-radius:5px;padding:6px 8px;margin-top:6px}
+.infant-note-title{font-size:9px;font-weight:700;color:#7DD3FC;text-transform:uppercase;
+  letter-spacing:.06em;margin-bottom:4px}
+.inf-row{display:flex;justify-content:space-between;padding:1px 0;font-size:9px;color:#94A3B8;
+  border-bottom:1px solid rgba(255,255,255,.04)}
+.inf-row:last-child{border-bottom:none}
+.inf-val{color:#CBD5E1;font-weight:600}
+.subsec-hdr{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.09em;
+  color:#60A5FA;padding:10px 0 5px;border-top:1px solid rgba(255,255,255,.1);margin-top:6px;
+  display:flex;align-items:center;gap:6px}
+.subsec-hdr::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.08)}
+.enr-summary{background:rgba(255,255,255,.06);border:1px solid rgba(96,165,250,.2);
+  border-radius:5px;padding:7px 9px;margin-top:6px}
+.enr-total{font-size:12px;font-weight:800;color:#fff;margin-bottom:2px;font-variant-numeric:tabular-nums}
+.enr-pct{font-size:10px;color:#60A5FA;font-weight:600}
+.enr-warn{font-size:9px;color:#FCD34D;margin-top:3px}
+/* SBA loan sidebar summary block */
+.loan-summary{background:rgba(255,255,255,.06);border:1px solid rgba(251,191,36,.25);
+  border-radius:5px;padding:7px 9px;margin-top:6px}
+.loan-sum-row{display:flex;justify-content:space-between;align-items:center;
+  padding:2px 0;font-size:10px;border-bottom:1px solid rgba(255,255,255,.04)}
+.loan-sum-row:last-child{border-bottom:none}
+.loan-sum-lbl{color:#94A3B8}
+.loan-sum-val{font-weight:800;color:#FCD34D;font-variant-numeric:tabular-nums}
+.loan-sum-empty{font-size:9px;color:#475569;text-align:center;padding:2px 0}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:10px}
+.main::-webkit-scrollbar{width:5px}
+.main::-webkit-scrollbar-thumb{background:var(--g300);border-radius:4px}
+
+/* SUMMARY CARDS — equal width */
+.summary-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.summary-card{background:#fff;border:1px solid var(--g200);border-radius:var(--r);
+  overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;flex-direction:column}
+.sc-card-hdr{color:#fff;padding:9px 14px;
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.sc-card-hdr-fin{background:#2563EB}
+.sc-card-hdr-staff{background:#059669}
+.sc-card-hdr-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em}
+.sc-card-hdr-sub{font-size:10px;font-weight:400;color:rgba(255,255,255,.75)}
+.sc-card-body{padding:12px 14px;flex:1;display:flex;flex-direction:column}
+
+/* Financial card */
+.fin-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.fin-item .fin-lbl{font-size:9px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--g400);margin-bottom:3px}
+.fin-item .fin-val{font-size:13px;font-weight:800;color:var(--g900);
+  font-variant-numeric:tabular-nums;line-height:1.2}
+.fin-item .fin-sub{font-size:9px;color:var(--g400);margin-top:1px}
+.fin-breakdown{font-size:10px;line-height:1.7}
+.fin-net{display:flex;align-items:stretch;border-top:1px solid var(--g200);padding-top:10px;margin-top:auto}
+.fin-net-panel{flex:1;display:flex;flex-direction:column}
+.fin-net-panel+.fin-net-panel{padding-left:12px;border-left:1px solid var(--g200);margin-left:12px}
+.fin-net-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--g400);margin-bottom:3px}
+.fin-net-val{font-size:24px;font-weight:900;letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums;line-height:1;margin-bottom:5px}
+.fin-net-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.fin-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px}
+.fin-net-mo{font-size:11px;font-weight:700;font-variant-numeric:tabular-nums}
+
+/* Staffing card */
+.staff-rooms{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.staff-room{background:var(--g50);border:1px solid var(--g200);border-radius:6px;padding:8px 10px}
+.staff-room-lbl{font-size:9px;font-weight:800;text-transform:uppercase;
+  letter-spacing:.07em;color:var(--accent);margin-bottom:5px}
+.staff-room-count{font-size:24px;font-weight:900;color:var(--g900);line-height:1;margin-bottom:3px}
+.staff-room-detail{font-size:10px;color:var(--g500);line-height:1.5}
+.staff-total-row{display:flex;justify-content:space-between;align-items:flex-end;
+  border-top:1px solid var(--g200);padding-top:10px;margin-top:auto}
+.staff-total-left .st-lbl{font-size:9px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--g400);margin-bottom:2px}
+.staff-total-left .st-val{font-size:13px;font-weight:800;color:var(--g900)}
+.staff-total-right{text-align:right}
+.staff-total-right .st-cost{font-size:16px;font-weight:900;color:var(--green);font-variant-numeric:tabular-nums}
+.staff-total-right .st-mo{font-size:10px;color:var(--g400);margin-top:1px}
+.staff-rates{display:grid;grid-template-columns:1fr 1fr;gap:6px;
+  margin-top:8px;padding-top:8px;border-top:1px solid var(--g100)}
+.rate-item .rate-lbl{font-size:9px;color:var(--g400);font-weight:600}
+.rate-item .rate-val{font-size:11px;font-weight:700;color:var(--g700);font-variant-numeric:tabular-nums}
+
+/* TABS */
+.tabs-wrap{background:#fff;border:1px solid var(--g200);border-radius:var(--r);
+  overflow:hidden;flex:1;display:flex;flex-direction:column;min-height:0}
+.tab-bar{display:flex;border-bottom:1px solid var(--g200);background:var(--g50);flex-shrink:0}
+.tab-btn{padding:9px 16px;font-size:12px;font-weight:600;color:var(--g500);
+  background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;
+  transition:.2s;white-space:nowrap;margin-bottom:-1px}
+.tab-btn:hover{color:var(--accent)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);background:#fff}
+.tab-content{flex:1;overflow-y:auto;min-height:0}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+
+/* PROJECTION TABLE */
+.tbl-wrap{overflow-x:auto}
+.ptbl{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+.ptbl th{padding:7px 11px;text-align:right;font-weight:700;font-size:10px;
+  white-space:nowrap;letter-spacing:.02em;color:#fff;background:var(--navy)}
+.ptbl th:first-child{text-align:left;min-width:200px}
+/* Scenario header colors — shared between ptbl and sstbl */
+.ptbl .th-actual,.sstbl .th-actual{background:#374151}
+.ptbl .th-60,.sstbl .th-60{background:#1E3A8A}
+.ptbl .th-70,.sstbl .th-70{background:#1D4ED8}
+.ptbl .th-80,.sstbl .th-80{background:#065F46}
+.ptbl .th-90,.sstbl .th-90{background:#064E3B}
+.ptbl .th-100,.sstbl .th-100{background:#052E16}
+.ptbl td{padding:5px 11px;text-align:right;border-bottom:1px solid var(--g100);color:var(--g700)}
+.ptbl td:first-child{text-align:left;color:var(--g500);padding-left:13px}
+.ptbl tr:hover td{background:var(--g50)}
+.ptbl .sec-row td{background:#EFF6FF;color:#1E40AF;font-weight:800;font-size:10px;
+  text-transform:uppercase;letter-spacing:.06em;padding:5px 11px;
+  border-top:1px solid #BFDBFE;border-bottom:none}
+.ptbl .tot-row td{font-weight:800;color:var(--g900);border-top:1px solid var(--g200);background:var(--g50)}
+/* Standard net income rows (without SBA) */
+.ptbl .net-row td{font-weight:900;font-size:13px;border-top:2px solid var(--g200);padding:7px 11px}
+.ptbl .net-row td:first-child{color:var(--g700);font-size:11px;font-weight:700}
+/* SBA-adjusted rows (light blue tint) */
+.ptbl .sba-net-row td{font-weight:800;font-size:12px;border-top:1px solid var(--sba-bd);
+  background:var(--sba-lt);padding:6px 11px}
+.ptbl .sba-net-row td:first-child{color:#1E40AF;font-size:11px;font-weight:700}
+.ptbl .sba-pct-row td{color:var(--g500);font-size:11px;background:var(--sba-lt);
+  border-bottom:2px solid var(--sba-bd)}
+.ptbl .sba-pct-row td:first-child{color:#1E40AF}
+.ptbl .sub-row td{color:var(--g500);font-size:11px}
+.ptbl .sub-row td:first-child{padding-left:21px;color:var(--g400)}
+.ptbl .mo-row td{color:var(--g500);font-size:11px}
+.ptbl .mo-row td:first-child{color:var(--g400)}
+.ptbl .pct-row td{color:var(--g500);font-size:11px;border-bottom:2px solid var(--g200)}
+.ptbl .cost-row td{color:var(--amber);font-size:11px}
+.ptbl .cost-row td:first-child{color:var(--amber)}
+.ptbl .loan-row td{color:var(--g700);font-size:11px;background:#FFFBEB}
+.ptbl .loan-row td:first-child{color:var(--amber);font-weight:600}
+/* Divider after actual column */
+.ptbl td:nth-child(2){border-right:2px solid var(--g200)}
+.ptbl th:nth-child(2){border-right:2px solid rgba(255,255,255,.2)}
+
+/* STAFFING TAB */
+.staff-summary{overflow-x:auto;padding:14px 14px 0}
+.sstbl{width:100%;border-collapse:collapse;font-size:11.5px;font-variant-numeric:tabular-nums;margin-bottom:14px}
+.sstbl th{background:var(--navy);color:#fff;padding:6px 9px;text-align:right;font-size:10px;font-weight:700}
+.sstbl th:first-child{text-align:left}
+.sstbl td{padding:5px 9px;text-align:right;border-bottom:1px solid var(--g100)}
+.sstbl td:first-child{text-align:left;color:var(--g500)}
+.sstbl .sstbl-tot td{font-weight:800;color:var(--g900);border-top:1px solid var(--g200);background:var(--g50)}
+.sstbl .sstbl-labor{color:var(--green);font-weight:700}
+.sstbl td:nth-child(2){border-right:2px solid var(--g200)}
+.staff-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:0 14px 14px}
+.sc-card{border:1px solid var(--g200);border-radius:7px;overflow:hidden}
+.sc-hdr{padding:8px 12px;display:flex;justify-content:space-between;align-items:center;color:#fff}
+.sc-hdr-actual{background:#374151}
+.sc-hdr-0{background:#1E3A8A}.sc-hdr-1{background:#1D4ED8}
+.sc-hdr-2{background:#065F46}.sc-hdr-3{background:#064E3B}.sc-hdr-4{background:#052E16}
+.sc-hdr-label{font-size:11px;font-weight:800}
+.sc-hdr-count{font-size:10px;color:rgba(255,255,255,.65)}
+.sc-section{padding:8px 12px;border-bottom:1px solid var(--g100)}
+.sc-sec-title{font-size:9px;font-weight:800;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--accent);margin-bottom:5px}
+.room-row{display:flex;justify-content:space-between;align-items:center;
+  padding:2px 0;font-size:11px;border-bottom:1px dashed var(--g100)}
+.room-row:last-child{border-bottom:none}
+.room-name{color:var(--g500)}
+.room-detail{font-weight:600;color:var(--g700)}
+.subtotal-row{display:flex;justify-content:space-between;align-items:center;
+  padding:4px 0 0;font-size:10px;border-top:1px solid var(--g100);margin-top:3px}
+.ratio-ok{display:inline-block;background:#D1FAE5;color:var(--green);
+  border-radius:3px;padding:1px 5px;font-size:9px;font-weight:700}
+.sc-totals{padding:7px 12px;background:var(--g50);display:flex;justify-content:space-between;font-size:11px}
+.sc-tot-val{font-weight:800;color:var(--g900)}
+.sc-costs{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--g200)}
+.sc-cost-item{padding:6px 10px;border-right:1px solid var(--g200)}
+.sc-cost-item:last-child{border-right:none}
+.sc-cost-lbl{font-size:9px;color:var(--g400);text-transform:uppercase;letter-spacing:.04em}
+.sc-cost-val{font-size:12px;font-weight:800;color:var(--green);font-variant-numeric:tabular-nums}
+
+/* ANALYSIS */
+.analysis-wrap{padding:14px;display:flex;flex-direction:column;gap:14px}
+.chart-box{background:var(--g50);border:1px solid var(--g200);border-radius:7px;padding:12px}
+.chart-title{font-size:12px;font-weight:700;color:var(--g700);margin-bottom:10px}
+.chart-svg{width:100%}
+.legend{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;align-items:center}
+.leg-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--g500)}
+.leg-sw{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.leg-note{font-size:9px;color:var(--g400);font-style:italic}
+.marginal-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.mg-card{background:var(--g50);border:1px solid var(--g200);border-radius:7px;padding:11px}
+.mg-card-royalty{background:#FFFBEB;border:1px solid #FCD34D}
+.mg-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--g400);margin-bottom:3px}
+.mg-value{font-size:18px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1.1}
+.mg-sub{font-size:10px;color:var(--g500);margin-top:2px}
+.stepup-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stepup-card{background:var(--amber-lt);border:1px solid #FCD34D;border-radius:7px;padding:11px}
+.notes-box{background:var(--g50);border:1px solid var(--g200);border-radius:7px;padding:11px}
+.notes-inner{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.cost-detail-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--g400)}
+.cost-detail-val{font-size:14px;font-weight:900;color:var(--g900);font-variant-numeric:tabular-nums}
+.cost-detail-sub{font-size:10px;color:var(--g400);margin-top:1px}
+
+/* TOOLTIP */
+#tooltip{position:fixed;background:#0F172A;color:#E2E8F0;padding:8px 11px;
+  border-radius:7px;font-size:11px;line-height:1.55;max-width:285px;
+  pointer-events:none;z-index:9999;box-shadow:var(--sh-lg);display:none;
+  border:1px solid rgba(255,255,255,.08)}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-l">
+    <h1>Preschool Capacity Projections</h1>
+    <p>Real-Time Capacity &amp; Financial Projections</p>
+  </div>
+  <div class="hdr-right">
+    <div class="hdr-mode">Projection Mode</div>
+    <div class="hdr-badge">CA Title 22 &middot; Live</div>
+  </div>
+</div>
+
+<div class="app">
+  <aside class="sb">
+    <div class="sb-hdr">
+      <span class="sb-hdr-txt">Adjust Inputs</span>
+      <button class="reset-btn" onclick="resetDefaults()">&#8635; Reset</button>
+    </div>
+    <div class="sb-scroll" id="sidebar"></div>
+  </aside>
+  <main class="main">
+    <div class="summary-cards" id="cards"></div>
+    <div class="tabs-wrap">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('projections',this)">&#128202; Capacity Projections</button>
+        <button class="tab-btn" onclick="switchTab('staffing',this)">&#128101; Staffing Detail</button>
+        <button class="tab-btn" onclick="switchTab('analysis',this)">&#128200; Financial Analysis</button>
+      </div>
+      <div class="tab-content">
+        <div class="tab-pane active" id="tab-projections"></div>
+        <div class="tab-pane" id="tab-staffing"></div>
+        <div class="tab-pane" id="tab-analysis"></div>
+      </div>
+    </div>
+  </main>
+</div>
+<div id="tooltip"></div>
+
+<script>
+// ══ SCENARIOS ══
+const SCENARIOS=[
+  {pct:.60,label:'60% Capacity',shortLabel:'60%',cls:'card-60',thCls:'th-60',hdrCls:'sc-hdr-0'},
+  {pct:.70,label:'70% Capacity',shortLabel:'70%',cls:'card-70',thCls:'th-70',hdrCls:'sc-hdr-1'},
+  {pct:.80,label:'80% Capacity',shortLabel:'80%',cls:'card-80',thCls:'th-80',hdrCls:'sc-hdr-2'},
+  {pct:.90,label:'90% Capacity',shortLabel:'90%',cls:'card-90',thCls:'th-90',hdrCls:'sc-hdr-3'},
+  {pct:1.00,label:'100% Capacity',shortLabel:'100%',cls:'card-100',thCls:'th-100',hdrCls:'sc-hdr-4'},
+];
+
+// ══ DEFAULTS ══
+const DEFAULTS={
+  infantTuition:1000,preschoolerTuition:700,
+  baseTeacherRate:16.67,iqPremium:20,aideRate:16.50,
+  teacherHours:40,aideHours:30,payrollBurden:15,
+  monthlyRent:10995,otherAnnualOps:29000,renovations:0,royaltyFee:6,
+  loanAmount:0,loanTerm:7,loanRate:10.5,
+  totalCapacity:90,maxInfants:12,
+  enrolledInfants:12,enrolledPreschoolers:52
+};
+let S=Object.assign({},DEFAULTS);
+
+// ══ SIDEBAR CONFIG ══
+const SECTIONS=[
+  {id:'tuition',label:'Tuition Rates',open:true,inputs:[
+    {key:'infantTuition',label:'Infant Monthly Tuition',min:400,max:3000,step:25,fmt:'$',
+      tip:'Monthly rate per infant (0–24 months). Update with actual contracted rates. Max $3,000 for growth projections.'},
+    {key:'preschoolerTuition',label:'Preschooler Monthly Tuition',min:300,max:3000,step:25,fmt:'$',
+      tip:'Monthly rate per preschool-age child (2–5 years). Typically 30–50% lower than infant rates due to less intensive staffing (1:12 vs 1:4).'},
+  ]},
+  {id:'staffing',label:'Staffing & Compensation',open:true,inputs:[
+    {key:'baseTeacherRate',label:'Base Teacher Rate (non-IQ)',min:15,max:50,step:.25,fmt:'$/',
+      tip:'Hourly rate for a teacher without infant-qualified (IQ) credentials. CA current minimum wage: $16.50/hr. All teachers earn the IQ rate (base + premium) in projection scenarios.'},
+    {key:'iqPremium',label:'IQ Premium (%)',min:0,max:50,step:1,fmt:'%',
+      tip:'Additional pay % for infant-qualified credentials. Applied to ALL teachers in every scenario. Formula: IQ Rate = Base Rate x (1 + IQ Premium %).'},
+    {key:'aideRate',label:'Aide Hourly Rate',min:15,max:35,step:.25,fmt:'$/',
+      tip:'Hourly rate for classroom aides. CA current minimum wage: $16.50/hr. Range extends to $35/hr for competitive markets. Aides do NOT receive the IQ premium.'},
+    {key:'teacherHours',label:'Teacher Weekly Hours',min:20,max:50,step:1,fmt:'hr',
+      tip:'Average hours per week per teacher. 40 hrs = standard full-time. Directly scales annual loaded cost.'},
+    {key:'aideHours',label:'Aide Weekly Hours',min:15,max:40,step:1,fmt:'hr',
+      tip:'Average hours per week per aide. 30 hrs = part-time shift-coverage model.'},
+    {key:'payrollBurden',label:'Payroll Burden (%)',min:10,max:30,step:.5,fmt:'%',
+      tip:'Additional % above gross wages for employer costs. Typical: FICA 7.65% + CA SUI ~2% + Workers Comp ~4% + misc ~1.35% = ~15%.'},
+  ]},
+  {id:'fixed',label:'Fixed Costs & Fees',open:true,inputs:[
+    {key:'monthlyRent',label:'Monthly Rent',min:5000,max:25000,step:100,fmt:'$',
+      tip:'Monthly lease payment. Fixed cost regardless of enrollment.'},
+    {key:'otherAnnualOps',label:'Other Annual Operating',min:5000,max:200000,step:1000,fmt:'$',
+      tip:'All non-labor, non-rent annual costs: utilities, insurance, supplies, admin, accounting, maintenance, marketing.'},
+    {key:'renovations',label:'Renovations / Updates',min:0,max:500000,step:5000,fmt:'$',
+      tip:'Annual renovation or capital improvement budget. Treated as a fixed annual cost. Default: $0.'},
+    {key:'royaltyFee',label:'Royalty Fee (% of Revenue)',min:0,max:20,step:.5,fmt:'%',
+      tip:'Franchise royalty charged as a percentage of gross annual revenue. Scales with enrollment. Typical franchise range: 4–8%. At 6% on $650K revenue: ~$39K/yr. Set to 0% if no franchise fee.'},
+    // SBA loan sliders — subsection header inserted before loanAmount in buildSidebar()
+    {key:'loanAmount',label:'SBA Loan Amount',min:0,max:3000000,step:50000,fmt:'$',
+      tip:'Total SBA 7(a) loan principal. Range $0–$3M. Set to $0 to exclude the loan from all calculations. When set, the annual debt service (principal + interest) is deducted from net income to show "With SBA Loan" impact. SBA 7(a) maximum is $5M; this tool is capped at $3M.'},
+    {key:'loanTerm',label:'Loan Term',min:1,max:10,step:1,fmt:'yr',
+      tip:'Loan repayment period in years (1–10). Longer terms reduce annual payments but increase total interest paid. Standard SBA 7(a) for business acquisition: 7–10 years. The tool calculates fully amortizing equal monthly payments for the selected term.'},
+    {key:'loanRate',label:'Loan Interest Rate',min:0,max:30,step:.25,fmt:'%',
+      tip:'Annual interest rate on the SBA loan. SBA 7(a) rates are typically Prime Rate + 2.75–3.75%. Current typical range (mid-2025): 10–11.5% for most terms. Payment formula: P × [r(1+r)^n / ((1+r)^n − 1)] where r = monthly rate and n = total months.'},
+  ]},
+  {id:'capacity',label:'Capacity & Title 22',open:true,inputs:[
+    {key:'totalCapacity',label:'Total Licensed Capacity',min:60,max:300,step:1,fmt:'',
+      tip:'Total children your facility is licensed to serve under CA Title 22. All scenario enrollment numbers scale from this.'},
+    {key:'maxInfants',label:'Max Infant Capacity',min:4,max:50,step:1,fmt:'',
+      tip:'Maximum infants licensed — ceiling used across all projection scenarios. TRADEOFF: infants earn more revenue per child but require 1:4 staffing (vs 1:12 for preschoolers).'},
+    {key:'enrolledInfants',label:'Enrolled Infants (Actual)',min:0,max:50,step:1,fmt:'',
+      tip:'Actual infants currently enrolled. Must not exceed Max Infant Capacity. Drives the "Actual Enrollment" column and summary cards. Does not affect 60–100% scenarios.'},
+    {key:'enrolledPreschoolers',label:'Enrolled Preschoolers (Actual)',min:0,max:300,step:1,fmt:'',
+      tip:'Actual preschoolers currently enrolled. Together with enrolled infants, reflects your true current operating state.'},
+  ]},
+];
+
+// ══ FORMAT HELPERS ══
+function fc(n){
+  if(n===null||n===undefined||isNaN(n)) return '—';
+  if(n<0) return '($'+Math.abs(Math.round(n)).toLocaleString('en-US')+')';
+  return '$'+Math.round(n).toLocaleString('en-US');
+}
+function fp(n){ return (n*100).toFixed(1)+'%'; }
+function fmtSlider(key,val){
+  const cfg=SECTIONS.flatMap(s=>s.inputs).find(i=>i.key===key);
+  if(!cfg) return val;
+  if(cfg.fmt==='$') return fc(val);
+  if(cfg.fmt==='$/') return '$'+parseFloat(val).toFixed(2)+'/hr';
+  if(cfg.fmt==='%') return val+'%';
+  if(cfg.fmt==='hr') return val+' hrs';
+  if(cfg.fmt==='yr') return val+(parseInt(val)===1?' yr':' yrs');
+  return val;
+}
+function netColor(n){ return n>=0?'var(--green)':'var(--red)'; }
+
+// ══ SBA 7(a) LOAN CALCULATION ══
+// Standard amortizing loan: P × [r(1+r)^n] / [(1+r)^n - 1]
+function calcLoanPayment(){
+  const P=S.loanAmount;
+  if(!P||P<=0) return {monthly:0,annual:0,hasLoan:false};
+  const r=S.loanRate/100/12;   // monthly rate
+  const n=S.loanTerm*12;        // total monthly payments
+  let monthly;
+  if(r===0){
+    monthly=P/n;                 // zero-interest: simple division
+  } else {
+    const pwr=Math.pow(1+r,n);
+    monthly=P*(r*pwr)/(pwr-1);
+  }
+  return {monthly,annual:monthly*12,hasLoan:true,
+    totalRepayment:monthly*n,
+    totalInterest:(monthly*n)-P};
+}
+
+// ══ TITLE 22 STAFFING ENGINE ══
+function calcStaffing(infants,preschoolers){
+  const infantGroups=[];
+  let rem=infants;
+  while(rem>0){
+    const size=Math.min(rem,8);
+    const staffNeeded=Math.ceil(size/4);
+    const teachers=Math.min(staffNeeded,2);
+    const aides=Math.max(0,staffNeeded-teachers);
+    infantGroups.push({size,teachers,aides,staff:staffNeeded});
+    rem-=size;
+  }
+  const iT=infantGroups.reduce((a,g)=>a+g.teachers,0);
+  const iA=infantGroups.reduce((a,g)=>a+g.aides,0);
+  const preGroups=[];
+  rem=preschoolers;
+  while(rem>0){
+    const size=Math.min(rem,24);
+    const staffNeeded=Math.ceil(size/12);
+    const aides=Math.max(0,staffNeeded-1);
+    preGroups.push({size,teachers:1,aides,staff:staffNeeded});
+    rem-=size;
+  }
+  const pT=preGroups.length,pA=preGroups.reduce((a,g)=>a+g.aides,0);
+  return{infantGroups,iT,iA,iTot:iT+iA,preGroups,pT,pA,pTot:pT+pA,
+    totals:{teachers:iT+pT,aides:iA+pA,total:iT+pT+iA+pA},
+    iRatio:(iT+iA)>0?infants/(iT+iA):0,
+    pRatio:(pT+pA)>0?preschoolers/(pT+pA):0};
+}
+
+// ══ FINANCIAL ENGINE ══
+function iqRate(){ return S.baseTeacherRate*(1+S.iqPremium/100); }
+function tAnnual(){ return iqRate()*S.teacherHours*52*(1+S.payrollBurden/100); }
+function aAnnual(){ return S.aideRate*S.aideHours*52*(1+S.payrollBurden/100); }
+function rentAnnual(){ return S.monthlyRent*12; }
+function fixedTotal(){ return rentAnnual()+S.otherAnnualOps+S.renovations; }
+
+// NOTE: calcFinancials does NOT include SBA loan — loan shown separately as with/without comparison
+function calcFinancials(infants,preschoolers){
+  const staff=calcStaffing(infants,preschoolers);
+  const iRev=infants*S.infantTuition*12,pRev=preschoolers*S.preschoolerTuition*12;
+  const tRev=iRev+pRev;
+  const laborT=staff.totals.teachers*tAnnual(),laborA=staff.totals.aides*aAnnual();
+  const labor=laborT+laborA;
+  const fixed=fixedTotal();
+  const royalty=tRev*(S.royaltyFee/100);
+  const exp=labor+fixed+royalty;
+  const net=tRev-exp;
+  return{staff,iRev,pRev,tRev,laborT,laborA,labor,
+    rent:rentAnnual(),otherOps:S.otherAnnualOps,renovations:S.renovations,
+    fixed,royalty,exp,net,margin:tRev>0?net/tRev:0,netMo:net/12};
+}
+
+function calcScenario(pct){
+  const total=Math.round(S.totalCapacity*pct);
+  const infants=Math.min(S.maxInfants,total);
+  const preschoolers=total-infants;
+  return Object.assign({pct,total,infants,preschoolers},calcFinancials(infants,preschoolers));
+}
+
+function calcActual(){
+  const infants=Math.min(S.enrolledInfants,S.maxInfants);
+  const maxPre=Math.max(0,S.totalCapacity-infants);
+  const preschoolers=Math.min(S.enrolledPreschoolers,maxPre);
+  const total=infants+preschoolers;
+  return Object.assign(
+    {isActual:true,pct:S.totalCapacity>0?total/S.totalCapacity:0,total,infants,preschoolers,
+     infClamped:S.enrolledInfants>S.maxInfants,preClamped:S.enrolledPreschoolers>maxPre},
+    calcFinancials(infants,preschoolers)
+  );
+}
+
+// ══ RENDER ALL ══
+function renderAll(){
+  const act=calcActual();
+  const scenarios=SCENARIOS.map(sc=>Object.assign({},sc,calcScenario(sc.pct)));
+  const loan=calcLoanPayment();
+  renderSummaryCards(act,loan);
+  renderProjectionTable(act,scenarios,loan);
+  renderStaffing(act,scenarios);
+  renderAnalysis(act,scenarios);
+  updateLiveSidebar(act,loan);
+}
+
+// ══ SUMMARY CARDS ══
+function renderSummaryCards(act,loan){
+  const nc=netColor(act.net);
+  const pctBg=act.margin>=0?'var(--green-lt)':'var(--red-lt)';
+  const pctClr=act.margin>=0?'var(--green)':'var(--red)';
+  const sf=act.staff;
+  const tCost=sf.totals.teachers*tAnnual();
+  const aCost=sf.totals.aides*aAnnual();
+  const utilPct=(act.pct*100).toFixed(1);
+
+  // --- Card 1 fin-net section: single panel or dual panel depending on loan ---
+  let finNetHtml='';
+  if(loan.hasLoan){
+    const netWL=act.net-loan.annual;
+    const netWLMo=act.netMo-loan.monthly;
+    const margWL=act.tRev>0?netWL/act.tRev:0;
+    const ncWL=netColor(netWL);
+    const pctBgWL=margWL>=0?'var(--green-lt)':'var(--red-lt)';
+    const pctClrWL=margWL>=0?'var(--green)':'var(--red)';
+    finNetHtml=`<div class="fin-net">
+      <div class="fin-net-panel">
+        <div class="fin-net-lbl">Without SBA Loan</div>
+        <div class="fin-net-val" style="color:${nc}">${fc(act.net)}</div>
+        <div class="fin-net-meta">
+          <span class="fin-badge" style="background:${pctBg};color:${pctClr}">${fp(act.margin)}</span>
+          <span class="fin-net-mo" style="color:${nc}">${fc(act.netMo)}/mo</span>
+        </div>
+      </div>
+      <div class="fin-net-panel">
+        <div class="fin-net-lbl">With SBA Loan &nbsp;<span style="font-size:9px;color:var(--amber);font-weight:600">${fc(loan.monthly)}/mo payment</span></div>
+        <div class="fin-net-val" style="color:${ncWL}">${fc(netWL)}</div>
+        <div class="fin-net-meta">
+          <span class="fin-badge" style="background:${pctBgWL};color:${pctClrWL}">${fp(margWL)}</span>
+          <span class="fin-net-mo" style="color:${ncWL}">${fc(netWLMo)}/mo</span>
+        </div>
+      </div>
+    </div>`;
+  } else {
+    finNetHtml=`<div class="fin-net">
+      <div class="fin-net-panel">
+        <div class="fin-net-lbl">Annual Net Income</div>
+        <div class="fin-net-val" style="color:${nc}">${fc(act.net)}</div>
+        <div class="fin-net-meta">
+          <span class="fin-badge" style="background:${pctBg};color:${pctClr}">${fp(act.margin)} margin</span>
+          <span class="fin-net-mo" style="color:${nc}">${fc(act.netMo)}/mo</span>
+        </div>
+      </div>
+      <div class="fin-net-panel" style="border-left:none;margin-left:0;padding-left:0;justify-content:center">
+        <div style="font-size:9px;color:var(--g400);text-align:center">
+          Configure SBA loan in<br>Fixed Costs &amp; Fees &#8594;
+        </div>
+      </div>
+    </div>`;
+  }
+
+  const card1=`<div class="summary-card">
+    <div class="sc-card-hdr sc-card-hdr-fin">
+      <span class="sc-card-hdr-title">Actual Enrollment</span>
+      <span class="sc-card-hdr-sub">${act.infants} inf + ${act.preschoolers} pre = ${act.total} children &nbsp;&bull;&nbsp; ${utilPct}% of ${S.totalCapacity} licensed</span>
+    </div>
+    <div class="sc-card-body">
+      <div class="fin-metrics">
+        <div class="fin-item">
+          <div class="fin-lbl">Revenue</div>
+          <div class="fin-val">${fc(act.tRev)}</div>
+          <div class="fin-sub">${fc(act.tRev/12)}/mo</div>
+        </div>
+        <div class="fin-item">
+          <div class="fin-lbl">Expenses (excl. loan)</div>
+          <div class="fin-val">${fc(act.exp)}</div>
+          <div class="fin-sub">${fc(act.exp/12)}/mo</div>
+        </div>
+        <div class="fin-item">
+          <div class="fin-lbl">Expense Breakdown</div>
+          <div class="fin-breakdown">
+            <div style="color:var(--g700)">Labor &nbsp;<span style="font-weight:700">${fc(act.labor)}</span></div>
+            <div style="color:var(--g500)">Fixed &nbsp;<span style="font-weight:700">${fc(act.fixed)}</span></div>
+            ${act.royalty>0?`<div style="color:var(--amber)">Royalty &nbsp;<span style="font-weight:700">${fc(act.royalty)}</span></div>`:''}
+            <div style="color:${loan.hasLoan?'var(--amber)':'var(--g400)'}">SBA Loan &nbsp;<span style="font-weight:700">${loan.hasLoan?fc(loan.annual)+'/yr':'$0 (none)'}</span></div>
+          </div>
+        </div>
+      </div>
+      ${finNetHtml}
+    </div>
+  </div>`;
+
+  const card2=`<div class="summary-card">
+    <div class="sc-card-hdr sc-card-hdr-staff">
+      <span class="sc-card-hdr-title">Title 22 Staffing</span>
+      <span class="sc-card-hdr-sub">At current actual enrollment</span>
+    </div>
+    <div class="sc-card-body">
+      <div class="staff-rooms">
+        <div class="staff-room">
+          <div class="staff-room-lbl">&#128274; Infant Room</div>
+          <div class="staff-room-count">${sf.iTot}</div>
+          <div class="staff-room-detail">${act.infants} infants &nbsp;&bull;&nbsp; 1:${sf.iRatio>0?sf.iRatio.toFixed(1):'—'} ratio</div>
+          <div class="staff-room-detail">${sf.iT} Teacher${sf.iT!==1?'s':''} + ${sf.iA} Aide${sf.iA!==1?'s':''}</div>
+        </div>
+        <div class="staff-room">
+          <div class="staff-room-lbl">&#127912; Preschool Area</div>
+          <div class="staff-room-count">${sf.pTot}</div>
+          <div class="staff-room-detail">${act.preschoolers} children &nbsp;&bull;&nbsp; 1:${sf.pRatio>0?sf.pRatio.toFixed(1):'—'} ratio</div>
+          <div class="staff-room-detail">${sf.pT} Teacher${sf.pT!==1?'s':''} + ${sf.pA} Aide${sf.pA!==1?'s':''}</div>
+        </div>
+      </div>
+      <div class="staff-total-row">
+        <div class="staff-total-left">
+          <div class="st-lbl">Total Staff Required</div>
+          <div class="st-val">${sf.totals.teachers}T + ${sf.totals.aides}A = ${sf.totals.total} staff</div>
+        </div>
+        <div class="staff-total-right">
+          <div class="st-cost">${fc(tCost+aCost)}/yr</div>
+          <div class="st-mo">${fc((tCost+aCost)/12)}/mo total labor</div>
+        </div>
+      </div>
+      <div class="staff-rates">
+        <div class="rate-item">
+          <div class="rate-lbl">IQ Teacher (loaded)</div>
+          <div class="rate-val">$${iqRate().toFixed(2)}/hr &nbsp;&bull;&nbsp; ${fc(tAnnual())}/yr</div>
+        </div>
+        <div class="rate-item">
+          <div class="rate-lbl">Aide (loaded)</div>
+          <div class="rate-val">$${S.aideRate.toFixed(2)}/hr &nbsp;&bull;&nbsp; ${fc(aAnnual())}/yr</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  document.getElementById('cards').innerHTML=card1+card2;
+}
+
+// ══ PROJECTION TABLE ══
+function renderProjectionTable(act,scenarios,loan){
+  const allData=[act,...scenarios];
+  const colSpan=allData.length+1;
+
+  const thHdr=`<tr>
+    <th style="text-align:left;background:var(--navy)">Metric</th>
+    <th class="th-actual">Actual<br>Enrollment<br><span style="font-weight:400;font-size:9px">${act.infants}i + ${act.preschoolers}p</span></th>
+    ${scenarios.map(s=>`<th class="${s.thCls}">${s.label}<br><span style="font-weight:400;font-size:9px">${s.total} children</span></th>`).join('')}
+  </tr>`;
+
+  function secRow(label){return`<tr class="sec-row"><td colspan="${colSpan}">${label}</td></tr>`;}
+  function row(cls,label,vals,tip=''){
+    const ta=tip?` data-tip="${tip.replace(/"/g,'&quot;').replace(/'/g,'&#39;')}"`:''
+    return`<tr class="${cls}"><td${ta}>${label}</td>${vals.map(v=>`<td>${v}</td>`).join('')}</tr>`;
+  }
+  // Net rows: green/red per cell, appropriate background
+  function netRow(cls,label,nums){
+    const bg=nums.every(n=>n>=0)?'#F0FDF4':(nums.every(n=>n<0)?'#FFF1F2':'#FAFAFA');
+    return`<tr class="${cls}" style="background:${bg}">
+      <td>${label}</td>${nums.map(n=>`<td style="color:${netColor(n)}">${fc(n)}</td>`).join('')}
+    </tr>`;
+  }
+  // SBA-adjusted rows: light blue background, same green/red coloring
+  function sbaNetRow(label,nums){
+    return`<tr class="sba-net-row">
+      <td>${label}</td>${nums.map(n=>`<td style="color:${netColor(n)}">${fc(n)}</td>`).join('')}
+    </tr>`;
+  }
+  function sbaPctRow(label,nums){
+    return`<tr class="sba-pct-row">
+      <td>${label}</td>${nums.map(n=>`<td>${fp(n)}</td>`).join('')}
+    </tr>`;
+  }
+  function vals(fn){return allData.map(fn);}
+
+  // SBA: loan payment same across all columns (not enrollment-dependent)
+  const loanAnnual=loan.annual;
+  const loanMonthly=loan.monthly;
+
+  let html=`<div class="tbl-wrap"><table class="ptbl">
+  <thead>${thHdr}</thead><tbody>
+
+  ${secRow('Enrollment')}
+  ${row('','Total Children',vals(s=>s.total),'Actual: enrolled infants + preschoolers. Projections: round('+S.totalCapacity+' × scenario %).')}
+  ${row('sub-row','Infants',vals(s=>s.infants),'Actual: enrolled (max '+S.maxInfants+'). Projections: min(max infants, total).')}
+  ${row('sub-row','Preschoolers',vals(s=>s.preschoolers),'Actual: enrolled. Projections: total minus infants.')}
+  ${row('sub-row','Utilization %',vals(s=>fp(s.pct)),'Actual: enrolled ÷ licensed. Projections: scenario %.')}
+
+  ${secRow('Annual Revenue')}
+  ${row('sub-row','Infant Revenue',vals(s=>fc(s.iRev)),'Infants × $'+S.infantTuition.toLocaleString()+'/mo × 12.')}
+  ${row('sub-row','Preschooler Revenue',vals(s=>fc(s.pRev)),'Preschoolers × $'+S.preschoolerTuition.toLocaleString()+'/mo × 12.')}
+  ${row('tot-row','Total Annual Revenue',vals(s=>fc(s.tRev)))}
+  ${row('mo-row','Monthly Revenue',vals(s=>fc(s.tRev/12)))}
+
+  ${secRow('Title 22 Minimum Staffing (Auto-Calculated)')}
+  ${row('','IQ Teachers Required',vals(s=>s.staff.totals.teachers),'1 teacher per infant group (max 8) + 1 per preschool room (max 24). All IQ-qualified at $'+iqRate().toFixed(2)+'/hr.')}
+  ${row('','Aides Required',vals(s=>s.staff.totals.aides),'Aides to meet 1:4 infant and 1:12 preschool ratios. Rate: $'+S.aideRate.toFixed(2)+'/hr × '+S.aideHours+' hrs/wk.')}
+  ${row('tot-row','Total Staff (Title 22 Min)',vals(s=>s.staff.totals.total))}
+  ${row('sub-row','  Infant Room Staff',vals(s=>s.staff.iTot),'1:4 ratio, max group 8.')}
+  ${row('sub-row','  Preschool Area Staff',vals(s=>s.staff.pTot),'1:12 ratio, max room 24.')}
+
+  ${secRow('Annual Labor Costs (Fully-Loaded, '+S.payrollBurden+'% burden)')}
+  ${row('sub-row','Teacher Labor',vals(s=>fc(s.laborT)),'Teachers × '+fc(tAnnual())+'/yr ($'+iqRate().toFixed(2)+'/hr × '+S.teacherHours+'h × 52wk × '+(1+S.payrollBurden/100).toFixed(2)+')')}
+  ${row('sub-row','Aide Labor',vals(s=>fc(s.laborA)),'Aides × '+fc(aAnnual())+'/yr ($'+S.aideRate.toFixed(2)+'/hr × '+S.aideHours+'h × 52wk × '+(1+S.payrollBurden/100).toFixed(2)+')')}
+  ${row('tot-row','Total Annual Labor',vals(s=>fc(s.labor)))}
+  ${row('pct-row','Labor % of Revenue',vals(s=>fp(s.labor/s.tRev)),'Industry benchmark: 55–65%. Lower is better.')}
+
+  ${secRow('Fixed Costs (Annual — Same Across All Columns)')}
+  ${row('sub-row','Rent',vals(_=>fc(rentAnnual())),'$'+S.monthlyRent.toLocaleString()+'/mo × 12 = '+fc(rentAnnual())+'/yr')}
+  ${row('sub-row','Other Operating',vals(_=>fc(S.otherAnnualOps)),'Utilities, insurance, supplies, admin, maintenance, marketing.')}
+  ${S.renovations>0?row('cost-row','Renovations / Updates',vals(_=>fc(S.renovations)),'Annual renovation budget.'):row('sub-row','Renovations / Updates',vals(_=>'$0'),'Set Renovations slider to add an annual budget.')}
+  ${row('tot-row','Total Fixed Costs',vals(_=>fc(fixedTotal())))}
+
+  ${secRow('Royalty / Franchise Fee')}
+  ${row('cost-row','Royalty Fee ('+S.royaltyFee+'% of revenue)',vals(s=>fc(s.royalty)),'Scales with revenue: '+S.royaltyFee+'% × gross annual revenue per scenario.')}
+
+  ${secRow('Expenses & Profitability (Excluding SBA Loan)')}
+  ${row('tot-row','Total Annual Expenses',vals(s=>fc(s.exp)),'Labor + Fixed Costs + Royalty (SBA loan shown separately below)')}
+  ${row('mo-row','Monthly Expenses',vals(s=>fc(s.exp/12)))}
+  ${netRow('net-row','Annual Net Income (Without SBA Loan)',vals(s=>s.net))}
+  ${netRow('mo-row','Monthly Net Income (Without SBA Loan)',vals(s=>s.netMo))}
+  ${row('pct-row','Net Profit Margin (Without SBA Loan)',vals(s=>fp(s.margin)))}
+
+  ${secRow('SBA 7(a) Loan Debt Service')}
+  ${row('loan-row','Annual Loan Payment (P+I)',vals(_=>loanAnnual>0?fc(loanAnnual):'$0 — no loan configured'),
+    'Monthly payment: '+fc(loanMonthly)+'/mo × 12. Same across all scenarios (depends only on loan amount, term, and rate — not enrollment).'
+    +(loan.hasLoan?' Total repayment over '+S.loanTerm+' yrs: '+fc(loan.totalRepayment)+' (interest: '+fc(loan.totalInterest)+').':''))}
+  ${row('loan-row','Monthly Loan Payment (P+I)',vals(_=>loanMonthly>0?fc(loanMonthly):'$0'),
+    'Standard amortizing monthly payment. Formula: P × [r(1+r)^n] / [(1+r)^n − 1]. Rate: '+S.loanRate+'%/yr, Term: '+S.loanTerm+' yrs.')}
+
+  ${secRow('Net Income (With SBA Loan)')}
+  ${sbaNetRow('Annual Net Income (With SBA Loan)',vals(s=>s.net-loanAnnual))}
+  ${sbaNetRow('Monthly Net Income (With SBA Loan)',vals(s=>s.netMo-loanMonthly))}
+  ${sbaPctRow('Net Profit Margin (With SBA Loan)',vals(s=>s.tRev>0?(s.net-loanAnnual)/s.tRev:0))}
+
+  </tbody></table></div>
+  <div style="padding:8px 14px;font-size:10px;color:var(--g400);line-height:1.6">
+    <strong>Actual Enrollment</strong> column uses the enrolled infant/preschooler sliders.
+    <strong>Projection columns</strong> (60–100%) are independent what-if scenarios.
+    Staffing is CA Title 22 minimum. Royalty (${S.royaltyFee}%) scales with gross revenue.
+    SBA loan payment is fixed across all scenarios — adjust loan sliders in Fixed Costs &amp; Fees.
+  </div>`;
+
+  document.getElementById('tab-projections').innerHTML=html;
+}
+
+// ══ STAFFING DETAIL ══
+function renderStaffing(act,scenarios){
+  const allData=[act,...scenarios];
+  let summaryHtml=`<div class="staff-summary"><table class="sstbl"><thead>
+    <tr>
+      <th>Metric</th>
+      <th class="th-actual">Actual<br>${act.infants}i+${act.preschoolers}p</th>
+      ${scenarios.map(s=>`<th class="${s.thCls}">${s.shortLabel}<br>${s.infants}i+${s.preschoolers}p</th>`).join('')}
+    </tr></thead><tbody>`;
+  const metrics=[
+    {lbl:'Total Children',fn:d=>d.total},
+    {lbl:'IQ Teachers',fn:d=>d.staff.totals.teachers},
+    {lbl:'Aides',fn:d=>d.staff.totals.aides},
+    {lbl:'Total Staff',fn:d=>d.staff.totals.total,tot:true},
+    {lbl:'Teacher Labor',fn:d=>fc(d.laborT),labor:true},
+    {lbl:'Aide Labor',fn:d=>fc(d.laborA),labor:true},
+    {lbl:'Total Labor',fn:d=>fc(d.labor),labor:true,bold:true},
+  ];
+  metrics.forEach(({lbl,fn,tot=false,labor=false,bold=false})=>{
+    summaryHtml+=`<tr${tot?' class="sstbl-tot"':''}>
+      <td style="${bold?'font-weight:800;':''}">${lbl}</td>
+      ${allData.map((d,i)=>{
+        const v=fn(d);
+        const s=[i===0?'background:#F8FAFC;':'',labor?'color:var(--green);font-weight:700;':'',bold?'font-weight:900;':''].filter(Boolean).join('');
+        return`<td style="${s}">${v}</td>`;
+      }).join('')}
+    </tr>`;
+  });
+  summaryHtml+=`</tbody></table></div>`;
+
+  function staffCard(data,label,hdrCls,isActual=false){
+    const sf=data.staff;
+    let iGrps='';
+    sf.infantGroups.forEach((g,j)=>{
+      const sd=(g.teachers>0&&g.aides>0)?`${g.teachers}T + ${g.aides}A`:(g.teachers>0?`${g.teachers}T`:`${g.aides}A`);
+      iGrps+=`<div class="room-row"><span class="room-name">Group ${String.fromCharCode(65+j)}: ${g.size} infants</span><span class="room-detail">${sd} = ${g.staff} staff</span></div>`;
+    });
+    let pGrps='';
+    sf.preGroups.forEach((g,j)=>{
+      pGrps+=`<div class="room-row"><span class="room-name">Room ${j+1}: ${g.size} children</span><span class="room-detail">${g.aides>0?'1T + '+g.aides+'A':'1T'} = ${g.staff} staff</span></div>`;
+    });
+    const tCost=sf.totals.teachers*tAnnual(),aCost=sf.totals.aides*aAnnual();
+    const titleStr=isActual?`${data.infants} inf + ${data.preschoolers} pre`:`${data.total} children`;
+    return`<div class="sc-card">
+      <div class="sc-hdr ${hdrCls}">
+        <span class="sc-hdr-label">${label} &mdash; ${titleStr}</span>
+        <span class="sc-hdr-count">${sf.totals.total} staff min.</span>
+      </div>
+      <div class="sc-section">
+        <div class="sc-sec-title">&#128274; Infant Room (${data.infants} infants &bull; 1:4 &bull; max 8/group)</div>
+        ${iGrps}
+        <div class="subtotal-row">
+          <span style="color:var(--g500);font-size:10px">${sf.iT}T + ${sf.iA}A = ${sf.iTot} staff</span>
+          <span class="ratio-ok">1:${sf.iRatio.toFixed(1)} &#10003;</span>
+        </div>
+      </div>
+      ${data.preschoolers>0?`<div class="sc-section">
+        <div class="sc-sec-title">&#127912; Preschool Area (${data.preschoolers} children &bull; 1:12 &bull; max 24/room)</div>
+        ${pGrps}
+        <div class="subtotal-row">
+          <span style="color:var(--g500);font-size:10px">${sf.pT}T + ${sf.pA}A = ${sf.pTot} staff</span>
+          <span class="ratio-ok">1:${sf.pRatio.toFixed(1)} &#10003;</span>
+        </div>
+      </div>`:''}
+      <div class="sc-totals"><span class="sc-tot-val">${sf.totals.teachers} IQ Teachers + ${sf.totals.aides} Aides = ${sf.totals.total} Staff</span></div>
+      <div class="sc-costs">
+        <div class="sc-cost-item"><div class="sc-cost-lbl">Teacher Labor</div><div class="sc-cost-val">${fc(tCost)}</div></div>
+        <div class="sc-cost-item"><div class="sc-cost-lbl">Aide Labor</div><div class="sc-cost-val">${fc(aCost)}</div></div>
+        <div class="sc-cost-item"><div class="sc-cost-lbl">Total Labor</div><div class="sc-cost-val" style="font-size:13px">${fc(tCost+aCost)}</div></div>
+      </div>
+    </div>`;
+  }
+
+  let cardsHtml='<div class="staff-grid">';
+  cardsHtml+=staffCard(act,'Actual Enrollment','sc-hdr-actual',true);
+  scenarios.forEach(s=>{cardsHtml+=staffCard(s,s.label,s.hdrCls);});
+  cardsHtml+='</div>';
+  document.getElementById('tab-staffing').innerHTML=summaryHtml+cardsHtml;
+}
+
+// ══ ANALYSIS TAB ══
+function renderAnalysis(act,scenarios){
+  const allData=[act,...scenarios];
+  const allLabels=['Actual',...scenarios.map(s=>s.shortLabel)];
+  const maxVal=Math.max(...allData.map(d=>Math.max(d.tRev,d.exp)))*1.12;
+  const W=600,H=200,ML=60,MB=30,MR=12,MT=18;
+  const CW=W-ML-MR,CH=H-MB-MT;
+  const yS=v=>MT+CH-(v/maxVal*CH);
+  const gW=CW/allData.length;
+  const bW=Math.min(gW*0.26,24);
+
+  let svgParts='';
+  svgParts+=`<rect x="${ML}" y="${MT-2}" width="${gW}" height="${CH+2}" fill="#F1F5F9" rx="3"/>`;
+  [0,.25,.5,.75,1].forEach(t=>{
+    const val=t*maxVal,y=yS(val);
+    svgParts+=`<line x1="${ML}" y1="${y}" x2="${W-MR}" y2="${y}" stroke="#E2E8F0" stroke-width="1"/>`;
+    svgParts+=`<text x="${ML-4}" y="${y+3.5}" text-anchor="end" font-size="9" fill="#94A3B8">$${(val/1000).toFixed(0)}k</text>`;
+  });
+  svgParts+=`<line x1="${ML}" y1="${yS(0)}" x2="${W-MR}" y2="${yS(0)}" stroke="#CBD5E1" stroke-width="1.5"/>`;
+  const sepX=ML+gW;
+  svgParts+=`<line x1="${sepX}" y1="${MT-4}" x2="${sepX}" y2="${MT+CH+2}" stroke="#94A3B8" stroke-width="1.2" stroke-dasharray="4,3"/>`;
+  allData.forEach((d,i)=>{
+    const isActual=i===0;
+    const cx=ML+(i+0.5)*gW;
+    const op=isActual?0.45:0.85;
+    const rH=d.tRev/maxVal*CH,rY=yS(d.tRev);
+    svgParts+=`<rect x="${cx-bW-2}" y="${rY}" width="${bW}" height="${rH}" fill="#3B82F6" rx="2" opacity="${op}"/>`;
+    const eH=d.exp/maxVal*CH,eY=yS(d.exp);
+    svgParts+=`<rect x="${cx+2}" y="${eY}" width="${bW}" height="${eH}" fill="#F59E0B" rx="2" opacity="${op}"/>`;
+    const nc=d.net>=0?'#059669':'#DC2626';
+    svgParts+=`<text x="${cx}" y="${Math.min(rY,eY)-8}" text-anchor="middle" font-size="${isActual?'8':'8.5'}" font-weight="bold" fill="${nc}">${fc(d.net)}</text>`;
+    svgParts+=`<text x="${cx}" y="${H-6}" text-anchor="middle" font-size="${isActual?'9.5':'10'}" font-weight="${isActual?'800':'600'}" fill="${isActual?'#1E3A5F':'#475569'}">${allLabels[i]}</text>`;
+  });
+
+  const margRevPre=S.preschoolerTuition*12,margRevInf=S.infantTuition*12;
+  const royPre=margRevPre*(S.royaltyFee/100),royInf=margRevInf*(S.royaltyFee/100);
+  const netMargPre=margRevPre-royPre,netMargInf=margRevInf-royInf;
+  const staffCostPerPre=tAnnual()/12,staffCostPerInf=tAnnual()/4;
+  const fullNetPre=netMargPre-staffCostPerPre,fullNetInf=netMargInf-staffCostPerInf;
+  const stepAide=aAnnual(),stepTeacher=tAnnual();
+
+  let html=`<div class="analysis-wrap">
+    <div class="chart-box">
+      <div class="chart-title">Revenue vs. Expenses &nbsp;<span style="font-size:10px;font-weight:400;color:var(--g400)">"Actual" = faded first group &bull; remaining = projection scenarios &bull; expenses exclude SBA loan</span></div>
+      <svg viewBox="0 0 ${W} ${H}" class="chart-svg">${svgParts}</svg>
+      <div class="legend">
+        <div class="leg-item"><div class="leg-sw" style="background:#3B82F6"></div>Revenue</div>
+        <div class="leg-item"><div class="leg-sw" style="background:#F59E0B"></div>Expenses (excl. SBA loan)</div>
+        <div class="leg-item"><div class="leg-sw" style="background:#059669"></div>Positive net</div>
+        <div class="leg-item"><div class="leg-sw" style="background:#DC2626"></div>Negative net</div>
+        <div class="leg-item"><span class="leg-note">&#8592; Faded = Actual &nbsp;&bull;&nbsp; Full color = Projections &#8594;</span></div>
+      </div>
+    </div>
+
+    <div class="notes-box">
+      <div class="chart-title" style="margin-bottom:10px">Per-Employee Annual Cost &nbsp;&bull;&nbsp; ${S.payrollBurden}% burden</div>
+      <div class="notes-inner">
+        <div><div class="cost-detail-lbl">IQ Teacher</div>
+          <div class="cost-detail-val">${fc(tAnnual())}/yr</div>
+          <div class="cost-detail-sub">$${iqRate().toFixed(2)}/hr &times; ${S.teacherHours}h &times; 52wk &times; ${(1+S.payrollBurden/100).toFixed(2)}</div></div>
+        <div><div class="cost-detail-lbl">Aide</div>
+          <div class="cost-detail-val">${fc(aAnnual())}/yr</div>
+          <div class="cost-detail-sub">$${S.aideRate.toFixed(2)}/hr &times; ${S.aideHours}h &times; 52wk &times; ${(1+S.payrollBurden/100).toFixed(2)}</div></div>
+        <div><div class="cost-detail-lbl">Teacher vs Aide Premium</div>
+          <div class="cost-detail-val" style="color:var(--amber)">+${fc(tAnnual()-aAnnual())}/yr</div>
+          <div class="cost-detail-sub">Extra cost per teacher vs aide slot</div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="chart-title">Marginal Revenue Analysis &nbsp;<span style="font-size:10px;font-weight:400;color:var(--g400)">(per added child after ${S.royaltyFee}% royalty — within a staffing tier)</span></div>
+      <div class="marginal-grid-4">
+        <div class="mg-card"><div class="mg-label">Gross Revenue / Preschooler</div>
+          <div class="mg-value" style="color:var(--green)">${fc(margRevPre)}/yr</div>
+          <div class="mg-sub">${fc(S.preschoolerTuition)}/mo &times; 12</div></div>
+        <div class="mg-card mg-card-royalty"><div class="mg-label" style="color:var(--amber)">Royalty on Preschooler</div>
+          <div class="mg-value" style="color:var(--amber)">(${fc(royPre)})/yr</div>
+          <div class="mg-sub">${S.royaltyFee}% &times; ${fc(margRevPre)}</div></div>
+        <div class="mg-card"><div class="mg-label">Net Revenue After Royalty</div>
+          <div class="mg-value" style="color:${netColor(netMargPre)}">${fc(netMargPre)}/yr</div>
+          <div class="mg-sub">Effective contribution before staffing step-ups</div></div>
+        <div class="mg-card" style="background:${fullNetPre>=0?'var(--g50)':'var(--red-lt)'}">
+          <div class="mg-label">Net After Royalty + Labor</div>
+          <div class="mg-value" style="font-size:15px;color:${netColor(fullNetPre)}">${fc(fullNetPre)}/yr</div>
+          <div class="mg-sub">Per preschooler. Per infant: <span style="font-weight:700;color:${netColor(fullNetInf)}">${fc(fullNetInf)}</span></div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="chart-title">Staffing Step-Up Break-Even &nbsp;<span style="font-size:10px;font-weight:400;color:var(--g400)">(children needed to offset cost of adding one staff)</span></div>
+      <div class="stepup-grid">
+        <div class="stepup-card">
+          <div class="mg-label" style="color:var(--amber)">Add 1 Aide (${fc(stepAide)}/yr)</div>
+          <div class="mg-value" style="color:var(--amber)">${fc(stepAide)}</div>
+          <div class="mg-sub">Break-even: <strong>${Math.ceil(stepAide/netMargPre)} preschoolers</strong> &times; ${fc(netMargPre)}/yr after royalty</div>
+        </div>
+        <div class="stepup-card">
+          <div class="mg-label" style="color:var(--amber)">Add 1 IQ Teacher (${fc(stepTeacher)}/yr)</div>
+          <div class="mg-value" style="color:var(--amber)">${fc(stepTeacher)}</div>
+          <div class="mg-sub">Break-even: <strong>${Math.ceil(stepTeacher/netMargPre)} preschoolers</strong> &times; ${fc(netMargPre)}/yr after royalty</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-size:10px;color:var(--g400);padding:10px 2px 4px;border-top:1px solid var(--g200);line-height:1.6">
+      <strong>Notes:</strong> Staffing is CA Title 22 minimum. Royalty (${S.royaltyFee}%) scales with gross revenue.
+      Labor burden ${S.payrollBurden}%: FICA, CA SUI, Workers Comp, misc.
+      SBA loan impact shown in Capacity Projections tab (with/without comparison rows). ${S.renovations>0?'Renovations '+fc(S.renovations)+'/yr in fixed costs.':''}
+    </div>
+  </div>`;
+
+  document.getElementById('tab-analysis').innerHTML=html;
+}
+
+// ══ LIVE SIDEBAR UPDATES ══
+function updateLiveSidebar(act,loan){
+  // Infant scenario breakdown
+  const bd=document.getElementById('infant-breakdown');
+  if(bd){
+    let html='<div class="infant-note-title">Live Split at Each Scenario</div>';
+    SCENARIOS.forEach(sc=>{
+      const tot=Math.round(S.totalCapacity*sc.pct);
+      const inf=Math.min(S.maxInfants,tot);
+      const pre=tot-inf;
+      const st=calcStaffing(inf,pre).totals.total;
+      html+=`<div class="inf-row"><span>${sc.shortLabel}: ${tot} total</span><span class="inf-val">${inf} inf + ${pre} pre &bull; ${st} staff</span></div>`;
+    });
+    bd.innerHTML=html;
+  }
+  // Enrollment summary
+  const es=document.getElementById('enr-summary');
+  if(es&&act){
+    let html=`<div class="enr-total">${act.infants} inf + ${act.preschoolers} pre = ${act.total} enrolled</div>`;
+    html+=`<div class="enr-pct">${(act.pct*100).toFixed(1)}% of ${S.totalCapacity} licensed capacity</div>`;
+    if(act.infClamped) html+=`<div class="enr-warn">&#9888; Infants clamped to max (${S.maxInfants})</div>`;
+    if(act.preClamped) html+=`<div class="enr-warn">&#9888; Preschoolers clamped to available slots</div>`;
+    es.innerHTML=html;
+  }
+  // SBA loan payment summary
+  const ls=document.getElementById('loan-summary');
+  if(ls){
+    if(loan.hasLoan){
+      ls.innerHTML=
+        `<div class="loan-sum-row"><span class="loan-sum-lbl">Monthly Payment (P+I)</span><span class="loan-sum-val">${fc(loan.monthly)}/mo</span></div>`+
+        `<div class="loan-sum-row"><span class="loan-sum-lbl">Annual Debt Service</span><span class="loan-sum-val">${fc(loan.annual)}/yr</span></div>`+
+        `<div class="loan-sum-row"><span class="loan-sum-lbl">Total Repayment (${S.loanTerm}yr)</span><span class="loan-sum-val">${fc(loan.totalRepayment)}</span></div>`+
+        `<div class="loan-sum-row"><span class="loan-sum-lbl">Total Interest Cost</span><span class="loan-sum-val">${fc(loan.totalInterest)}</span></div>`;
+    } else {
+      ls.innerHTML=`<div class="loan-sum-empty">Set loan amount above to calculate payments</div>`;
+    }
+  }
+}
+
+// ══ BUILD SIDEBAR ══
+function buildSidebar(){
+  let html='';
+  for(const sec of SECTIONS){
+    html+=`<div class="isec">
+      <div class="isec-toggle" onclick="toggleSec('${sec.id}')">
+        <span class="isec-title">${sec.label}</span>
+        <span class="isec-arrow${sec.open?' open':''}" id="arr-${sec.id}">&#9654;</span>
+      </div>
+      <div class="isec-body${sec.open?' open':''}" id="sec-${sec.id}">`;
+    for(const inp of sec.inputs){
+      // Subsection headers
+      if(inp.key==='loanAmount') html+=`<div class="subsec-hdr">SBA 7(a) Loan</div>`;
+      if(inp.key==='enrolledInfants') html+=`<div class="subsec-hdr">Current Actual Enrollment</div>`;
+      const val=S[inp.key];
+      html+=`<div class="sg">
+        <div class="sg-label">
+          <span class="sg-name">${inp.label}</span>
+          <span class="tip-icon" data-tip="${inp.tip.replace(/"/g,'&quot;').replace(/'/g,'&#39;')}">?</span>
+        </div>
+        <div class="sg-row">
+          <input type="range" id="sl-${inp.key}" min="${inp.min}" max="${inp.max}" step="${inp.step}" value="${val}"
+            oninput="onSlider('${inp.key}',this.value)">
+          <span class="sg-val" id="sv-${inp.key}">${fmtSlider(inp.key,val)}</span>
+        </div>
+        <div class="sg-range-lbl"><span>${fmtSlider(inp.key,inp.min)}</span><span>${fmtSlider(inp.key,inp.max)}</span></div>
+      </div>`;
+      // Post-slider special blocks
+      if(inp.key==='loanRate') html+=`<div class="loan-summary" id="loan-summary"><div class="loan-sum-empty">Set loan amount above to calculate payments</div></div>`;
+      if(inp.key==='maxInfants'){
+        html+=`<div class="infant-note" id="infant-breakdown"></div>
+        <div class="static-info">
+          <div class="static-row"><span class="static-key">Infant ratio (Title 22)</span><span class="static-val">1:4</span></div>
+          <div class="static-row"><span class="static-key">Max infant group size</span><span class="static-val">8 children</span></div>
+          <div class="static-row"><span class="static-key">Preschool ratio (Title 22)</span><span class="static-val">1:12</span></div>
+          <div class="static-row"><span class="static-key">Max preschool group size</span><span class="static-val">24 children</span></div>
+        </div>`;
+      }
+      if(inp.key==='enrolledPreschoolers') html+=`<div class="enr-summary" id="enr-summary"></div>`;
+    }
+    html+=`</div></div>`;
+  }
+  document.getElementById('sidebar').innerHTML=html;
+}
+
+function toggleSec(id){
+  document.getElementById('sec-'+id).classList.toggle('open');
+  document.getElementById('arr-'+id).classList.toggle('open');
+}
+
+function onSlider(key,rawVal){
+  let val=parseFloat(rawVal);
+  const inp=SECTIONS.flatMap(s=>s.inputs).find(i=>i.key===key);
+  if(inp&&inp.step<1) val=Math.round(val/inp.step)*inp.step;
+  else val=Math.round(val*100)/100;
+  S[key]=val;
+  const sv=document.getElementById('sv-'+key);
+  if(sv) sv.textContent=fmtSlider(key,val);
+  renderAll();
+}
+
+function resetDefaults(){
+  S=Object.assign({},DEFAULTS);
+  SECTIONS.flatMap(s=>s.inputs).forEach(inp=>{
+    const sl=document.getElementById('sl-'+inp.key);
+    const sv=document.getElementById('sv-'+inp.key);
+    if(sl) sl.value=DEFAULTS[inp.key];
+    if(sv) sv.textContent=fmtSlider(inp.key,DEFAULTS[inp.key]);
+  });
+  renderAll();
+}
+
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+const TT=document.getElementById('tooltip');
+document.addEventListener('mousemove',e=>{
+  const el=e.target.closest('[data-tip]');
+  if(el){
+    TT.textContent=el.getAttribute('data-tip');
+    TT.style.display='block';
+    const x=e.clientX+14,y=e.clientY-10;
+    TT.style.left=Math.min(x,window.innerWidth-TT.offsetWidth-8)+'px';
+    TT.style.top=Math.max(8,Math.min(y,window.innerHeight-TT.offsetHeight-8))+'px';
+  } else { TT.style.display='none'; }
+});
+document.addEventListener('mouseleave',()=>TT.style.display='none');
+
+buildSidebar();
+renderAll();
+</script>
+</body>
+</html>
